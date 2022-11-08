@@ -19,6 +19,7 @@ const parseQueryData = (params) => {
 
 async function getActivityData(params) {
   const res = await fetch(parseQueryData(params));
+  console.log(res);
   const parsedResponse = await res.json();
 
   let activityData = parsedResponse.items.slice(0, params.count || 4);
@@ -36,7 +37,7 @@ async function getActivityData(params) {
 
 async function getCityData() {
   const res = await fetch(`https://api.tripshock.com/dev_v1/destination`);
-
+  console.log(res);
   return await res.json();
 }
 
