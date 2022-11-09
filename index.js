@@ -144,15 +144,17 @@ async function initAffiliateScript() {
     const elements = document.querySelectorAll('div[data-ts-affiliate_id]');
     const currentScript = document.querySelector('script[data-ts-affiliate_id]');
 
-    let responseCityData;
-
-    if(Array.from(elements).find((item) => item.dataset.tsWidget === 'city')) {
-      responseCityData = await getCityData();
-    }
+    const itemsForRender = [];
 
     const widgetsPromises = Array.from(elements).map(async (element) => {
       const currentElement = element.attachShadow({ mode: "open" })
       if (element.dataset.tsAffiliate_id !== currentScript.dataset.tsAffiliate_id) return;
+
+      let responseCityData;
+
+      if (Array.from(elements).find((item) => item.dataset.tsWidget === 'city')) {
+        responseCityData = await getCityData();
+      }
 
       let params = {
         type: element.dataset.tsWidget,
@@ -176,9 +178,13 @@ async function initAffiliateScript() {
             description: cityData.meta.description,
             link: `https://staging-front-end.tripshock.com/attractions/${cityData.slug}?aff_id=${params.affiliateId}`,
             image: `https://staging-images.tripshock.com/destination/${cityData.id}/${cityData.slug}.webp`
-          }
+          };
 
-          renderCityWidget(result, currentElement);
+          itemsForRender.push({
+            data: result,
+            type: params.type,
+            element: currentElement
+          })
 
           break;
         case 'activity':
@@ -202,7 +208,11 @@ async function initAffiliateScript() {
               image: `https://staging-images.tripshock.com/activity/${item.id}/${item.slug}.webp`
             };
 
-            return renderActivityWidget(result, currentElement)
+            return itemsForRender.push({
+              data: result,
+              type: params.type,
+              element: currentElement
+            })
           });
 
           break;
@@ -211,9 +221,18 @@ async function initAffiliateScript() {
       }
     });
 
-    console.log(widgetsPromises)
-
     await Promise.all(widgetsPromises);
+
+    itemsForRender.map((item) => {
+      if (item.type === "city") {
+        return renderCityWidget(item.data, item.element)
+      }
+      if (item.type === "activity") {
+        return renderActivityWidget(item.data, item.element)
+      }
+      return null
+    })
+
   } catch (error) {
     console.log(error);
   }
