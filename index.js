@@ -19,7 +19,6 @@ const parseQueryData = (params) => {
 
 async function getActivityData(params) {
   const res = await fetch(parseQueryData(params));
-  console.log(res);
   const parsedResponse = await res.json();
 
   let activityData = parsedResponse.items.slice(0, params.count || 4);
@@ -37,7 +36,7 @@ async function getActivityData(params) {
 
 async function getCityData() {
   const res = await fetch(`https://api.tripshock.com/dev_v1/destination`);
-  console.log(res);
+
   return await res.json();
 }
 
@@ -145,6 +144,12 @@ async function initAffiliateScript() {
     const elements = document.querySelectorAll('div[data-ts-affiliate_id]');
     const currentScript = document.querySelector('script[data-ts-affiliate_id]');
 
+    let responseCityData;
+
+    if(Array.from(elements).find((item) => item.dataset.tsWidget === 'city')) {
+      responseCityData = await getCityData();
+    }
+
     const widgetsPromises = Array.from(elements).map(async (element) => {
       const currentElement = element.attachShadow({ mode: "open" })
       if (element.dataset.tsAffiliate_id !== currentScript.dataset.tsAffiliate_id) return;
@@ -160,8 +165,6 @@ async function initAffiliateScript() {
       switch (params.type) {
         case 'city':
           if (!params.affiliateId || !params.destinationId) break;
-
-          const responseCityData = await getCityData();
 
           if (!responseCityData || !responseCityData.items) {
             break;
@@ -207,6 +210,8 @@ async function initAffiliateScript() {
         default: break;
       }
     });
+
+    console.log(widgetsPromises)
 
     await Promise.all(widgetsPromises);
   } catch (error) {
