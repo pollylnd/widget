@@ -82,7 +82,7 @@ function renderCityWidget(data, element) {
 
   const parentWidth = container.clientWidth;
 
-  if(parentWidth > 700) {
+  if (parentWidth > 700) {
     container.style.height = "268px";
     container.style.flexDirection = "row-reverse";
     rightBox.style.width = "100%";
@@ -90,7 +90,7 @@ function renderCityWidget(data, element) {
     leftBox.style.paddingTop = "18px";
   }
 
-  if(parentWidth > 1200) {
+  if (parentWidth > 1200) {
     container.style.height = "288px";
     container.style.flexDirection = "row-reverse";
     rightBox.style.width = "100%";
